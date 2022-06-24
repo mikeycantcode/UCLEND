@@ -3,6 +3,30 @@ pragma solidity ^0.8.0;
 
 //Brought to you by mikeyLabz...
 
+/**
+This UCLoan is created individually each time a loan is made using the website
+or UCLoanFactory. 
+
+When it's created, it has to be funded with the lenders funds in order to be created or else it reverts
+At creation, the variables are fed from the UCLoanFactory into the individual loan, and the individual loan 
+is added to a data structure in UCLoanFactory
+
+Before the borrower accepts, the starting date of the loan does not increment and the lender can call
+cancelLoan() at any time. cancelLoan() ends the loan.
+
+The borrower can then either acceptLoanAndPayCollateral() or denyLoan(). denyLoan() ends the loan and gives the lender their
+funds back, and acceptLoanAndPayCollateral() begins the loan, but only if the borrower pays the collateral along with the accept.
+
+Once the loan is started, the remaining variable are initialized such as the 
+
+
+
+
+
+
+
+ */
+
 contract UCLoan {
     /**
     Counterparties in the loan
@@ -31,7 +55,8 @@ contract UCLoan {
     bool public isLoanActive;
     //due date
     uint256 public dueDate;
-
+    //date at which loan was started
+    uint256 public startDate;
 
     modifier onlyGuarantor() {
         require(msg.sender == guarantor, "is not gurantor");
@@ -127,11 +152,18 @@ contract UCLoan {
     calculates the amount left to pay
     makes the loan active
      */
-    function acceptLoanAndPayCollateral() external payable onlyBorrower {
-        require(msg.value <= requiredCollateralAmount);
+    function acceptLoanAndPayCollateral()
+        external
+        payable
+        onlyBorrower
+        returns (uint256)
+    {
+        require(msg.value >= requiredCollateralAmount);
         amountFundedByAddress[borrower] += msg.value;
+        startDate = block.number;
         recalculateAmountLeft2Pay();
         isLoanActive = true;
+        return startDate;
     }
 
     /**
@@ -156,7 +188,7 @@ contract UCLoan {
     Allows the guarantor to add collateral/repay the loan
      */
     function guarantorPayOffLoan() external payable onlyGuarantor isActiveLoan {
-        require(msg.value <= 0);
+        require(msg.value >= 0);
         amountFundedByAddress[guarantor] += msg.value;
         recalculateAmountLeft2Pay();
     }
@@ -165,15 +197,23 @@ contract UCLoan {
     Allows the borrower to pay back the loan
      */
     function borrowerPayOffLoan() external payable onlyBorrower isActiveLoan {
-        require(msg.value <= 0);
+        require(msg.value >= 0);
         amountFundedByAddress[borrower] += msg.value;
         recalculateAmountLeft2Pay();
     }
+
+    /**
+    Allows the lender to withdraw the funds that he has a right to
+    (not collateral before the due date) (only the amounts that r paid back currently)
+    (after the due date, everything in the contract is fair game)
+    (if not everything is paid back yet then the remianing shows up as bad debt and the 
+    two parties can arbitrate offchain)
+     */
 
     //--------viewfunctions------------
 
     /**
     
      */
-    function 
+    function viewDebt() external view returns (uint256, uint8) {}
 }
