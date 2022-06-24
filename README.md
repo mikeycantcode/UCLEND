@@ -10,6 +10,6 @@ Anyways the workflow is kind of unintelligble right now but it will begin to mak
 
 Happy lending!
 
-
+Oh and if i left any private keys in there plz dont rob me 0w0
 
 
