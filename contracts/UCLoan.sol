@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+//Brought to you by mikeyLabz...
+
 contract UCLoan {
     /**
     Counterparties in the loan
@@ -27,6 +29,9 @@ contract UCLoan {
     uint256 public requiredCollateralAmount;
     //loanActive
     bool public isLoanActive;
+    //due date
+    uint256 public dueDate;
+
 
     modifier onlyGuarantor() {
         require(msg.sender == guarantor, "is not gurantor");
@@ -54,8 +59,10 @@ contract UCLoan {
         address _guarantor,
         uint16 _interestRate,
         uint256 _amountBorrowed,
-        uint256 _requiredCollateral
+        uint256 _requiredCollateral,
+        uint256 _dueDate
     ) payable {
+        dueDate = _dueDate;
         lender = _lender;
         borrower = _borrower;
         guarantor = _guarantor;
@@ -90,10 +97,20 @@ contract UCLoan {
     }
 
     /**
+    Recalculates the amount left to pay off the loan
+     */
+    function recalculateAmountLeft2Pay() internal {
+        amountLeft2Pay =
+            amountToBeRepaid -
+            amountFundedByAddress[borrower] -
+            amountFundedByAddress[guarantor];
+    }
+
+    /**
     Cancels the loan in case the borrow changes mind in last minute
     Or if borrower has not supplied enough collateral
      */
-    function cancelLoan() public onlyLender {
+    function cancelLoan() external onlyLender {
         require(
             amountFundedByAddress[borrower] != requiredCollateralAmount,
             "Loan has already started"
@@ -113,7 +130,7 @@ contract UCLoan {
     function acceptLoanAndPayCollateral() external payable onlyBorrower {
         require(msg.value <= requiredCollateralAmount);
         amountFundedByAddress[borrower] += msg.value;
-        amountLeft2Pay = amountToBeRepaid - amountFundedByAddress[borrower];
+        recalculateAmountLeft2Pay();
         isLoanActive = true;
     }
 
@@ -141,10 +158,7 @@ contract UCLoan {
     function guarantorPayOffLoan() external payable onlyGuarantor isActiveLoan {
         require(msg.value <= 0);
         amountFundedByAddress[guarantor] += msg.value;
-        amountLeft2Pay =
-            amountToBeRepaid -
-            amountFundedByAddress[borrower] -
-            amountFundedByAddress[guarantor];
+        recalculateAmountLeft2Pay();
     }
 
     /**
@@ -152,6 +166,14 @@ contract UCLoan {
      */
     function borrowerPayOffLoan() external payable onlyBorrower isActiveLoan {
         require(msg.value <= 0);
-        amountFundedByAddress[borrower]
+        amountFundedByAddress[borrower] += msg.value;
+        recalculateAmountLeft2Pay();
     }
+
+    //--------viewfunctions------------
+
+    /**
+    
+     */
+    function 
 }
