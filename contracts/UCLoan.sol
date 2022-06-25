@@ -119,11 +119,15 @@ contract UCLoan {
         uint256 _requiredCollateral,
         uint256 _dueDate
     ) payable {
+        require(msg.value > _amountBorrowed);
         dueDate = _dueDate;
         lender = _lender;
         borrower = _borrower;
         guarantor = _guarantor;
-        amountToBeRepaid = _interestRate * _amountBorrowed + _amountBorrowed;
+        amountToBeRepaid =
+            (_interestRate * _amountBorrowed) /
+            100 +
+            _amountBorrowed;
         requiredCollateralAmount = _requiredCollateral;
         amountFundedByAddress[lender] += msg.value;
     }
@@ -240,6 +244,26 @@ contract UCLoan {
     (after the due date, everything in the contract is fair game)
     (if not everything is paid back yet then the remianing shows up as bad debt and the 
     two parties can arbitrate offchain)
+     */
+    function withdrawLender() external onlyLender isActiveLoan {
+        if (dueDate < block.number) {
+            (bool callSuccess, ) = payable(lender).call{
+                value: amountFundedByAddress[borrower] +
+                    amountFundedByAddress[guarantor] -
+                    requiredCollateralAmount
+            }("");
+            require(callSuccess, "Call failed");
+        } else {
+            (bool callSuccess, ) = payable(lender).call{
+                value: amountFundedByAddress[borrower] +
+                    amountFundedByAddress[guarantor]
+            }("");
+            require(callSuccess, "Call failed");
+        }
+    }
+
+    /**
+    
      */
 
     //--------viewfunctions------------
