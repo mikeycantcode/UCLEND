@@ -7,21 +7,53 @@ pragma solidity ^0.8.0;
 This UCLoan is created individually each time a loan is made using the website
 or UCLoanFactory. 
 
+---Starting the loan
+
 When it's created, it has to be funded with the lenders funds in order to be created or else it reverts
 At creation, the variables are fed from the UCLoanFactory into the individual loan, and the individual loan 
 is added to a data structure in UCLoanFactory
 
 Before the borrower accepts, the starting date of the loan does not increment and the lender can call
-cancelLoan() at any time. cancelLoan() ends the loan.
+cancelLoan() at any time. cancelLoan() ends the loan and gives the lender their funds back.
 
 The borrower can then either acceptLoanAndPayCollateral() or denyLoan(). denyLoan() ends the loan and gives the lender their
 funds back, and acceptLoanAndPayCollateral() begins the loan, but only if the borrower pays the collateral along with the accept.
 
-Once the loan is started, the remaining variable are initialized such as the 
+---During the loan
 
+Once the loan is started, the remaining variable are initialized such as the starting block number (startdate), and the isLoanActive boolean is set to true
+thus starting the loan.
 
+Now after accepting, the borrower can withdraw the funds from the UCLoan contract. The borrower can also start making payments to repay their loan
+If a nonzero guarantor is specified, the guarantor can help pay for the loan in case of nonpayment, or a missed payment from the borrower
 
+During the loan the lender is allowed to withdraw payments from the loan as they come in thru withdrawLender()
 
+---Finishing the loan
+
+There are 3 possible outcomes of a loan.
+
+Loan is paid by the time the loan ends - no bad debt, loan closes and is turned off/selfdestructed
+In this case -
+bad debt == 0 
+lender is repaid everything
+borrower is repaid collateral
+loan selfdestructs
+everyone is happy
+
+Loan is not paid off by the time theloan ends, but the lender allows the borrower to keep making payments
+bad debt > 0
+lender calls keepAlive()
+allows borrower to keep making payments 
+lender is allowed to take collateral + whatever has already been paid
+
+Loan is not paid off by the time the loan ends, and the lender decides to take it offchain to arbitrage or collections or a lawsuit
+bad debt > 0
+lender calls badLoan()
+the state of the loan is frozen
+no more payments
+lender withdraws whatever is in collateral + whatever has already been paid
+can query the blockchain for all of the informatio pertaining to the loan
 
 
 
