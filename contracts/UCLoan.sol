@@ -263,8 +263,14 @@ contract UCLoan {
     }
 
     /**
-    
+    function that makes the loan chill and everything (scenario 1)
      */
+    function endLoan1() external onlyLender isActiveLoan {
+        recalculateAmountLeft2Pay();
+        require(amountLeft2Pay < 10000);
+        require()
+
+    }
 
     //--------viewfunctions------------
 
@@ -272,4 +278,11 @@ contract UCLoan {
     
      */
     function viewDebt() external view returns (uint256, uint8) {}
+
+    function viewTime() external view returns (int256, bool) {
+        return (
+            int256(dueDate - block.number),
+            int256(dueDate - block.number) < 0
+        );
+    }
 }
