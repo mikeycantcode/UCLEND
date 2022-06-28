@@ -83,12 +83,14 @@ contract UCLoan {
     uint256 public amountLeft2Pay;
     //requiredCollateralAmount to start
     uint256 public requiredCollateralAmount;
+    //actual collateral
+    uint256 public actualCollateral;
     //loanActive
     bool public isLoanActive;
     //due date
     uint256 public dueDate;
     //date at which loan was started
-    uint256 public startDate;
+    //dont need this because i could just use block.number instead (update would be hella less gas efficient)
 
     modifier onlyGuarantor() {
         require(msg.sender == guarantor, "is not gurantor");
@@ -124,6 +126,7 @@ contract UCLoan {
         lender = _lender;
         borrower = _borrower;
         guarantor = _guarantor;
+        amountBorrowed = _amountBorrowed;
         amountToBeRepaid =
             (_interestRate * _amountBorrowed) /
             100 +
@@ -150,9 +153,9 @@ contract UCLoan {
             value: amountFundedByAddress[guarantor]
         }("");
         require(call3Success, "Call failed");
-        (bool call2Success, ) = payable(borrower).call{
-            value: amountFundedByAddress[borrower]
-        }("");
+        (bool call2Success, ) = payable(borrower).call{value: actualCollateral}(
+            ""
+        );
         require(call2Success, "Call failed");
         selfdestruct(payable(lender));
     }
@@ -173,7 +176,7 @@ contract UCLoan {
      */
     function cancelLoan() external onlyLender {
         require(
-            amountFundedByAddress[borrower] != requiredCollateralAmount,
+            actualCollateral != requiredCollateralAmount,
             "Loan has already started"
         );
         require(!isLoanActive, "Loan started already bro");
@@ -195,11 +198,10 @@ contract UCLoan {
         returns (uint256)
     {
         require(msg.value >= requiredCollateralAmount);
-        amountFundedByAddress[borrower] += msg.value;
-        startDate = block.number;
+        actualCollateral = msg.value;
         recalculateAmountLeft2Pay();
         isLoanActive = true;
-        return startDate;
+        return amountLeft2Pay;
     }
 
     /**
@@ -245,31 +247,52 @@ contract UCLoan {
     (if not everything is paid back yet then the remianing shows up as bad debt and the 
     two parties can arbitrate offchain)
      */
-    function withdrawLender() external onlyLender isActiveLoan {
+    function withdrawLender(uint256 _amount) external onlyLender isActiveLoan {
         if (dueDate < block.number) {
-            (bool callSuccess, ) = payable(lender).call{
-                value: amountFundedByAddress[borrower] +
-                    amountFundedByAddress[guarantor] -
-                    requiredCollateralAmount
-            }("");
+            require(
+                _amount <=
+                    amountFundedByAddress[borrower] +
+                        amountFundedByAddress[guarantor] -
+                        actualCollateral
+            );
+            (bool callSuccess, ) = payable(lender).call{value: _amount}("");
             require(callSuccess, "Call failed");
         } else {
-            (bool callSuccess, ) = payable(lender).call{
-                value: amountFundedByAddress[borrower] +
-                    amountFundedByAddress[guarantor]
-            }("");
+            require(
+                _amount <=
+                    amountFundedByAddress[borrower] +
+                        amountFundedByAddress[guarantor]
+            );
+            (bool callSuccess, ) = payable(lender).call{value: _amount}("");
             require(callSuccess, "Call failed");
         }
     }
 
     /**
     function that makes the loan chill and everything (scenario 1)
+    gives back the collaterall to the borrower
+    gives the lender everything else
      */
-    function endLoan1() external onlyLender isActiveLoan {
+    function endLoan1() external onlyLender isActiveLoan returns (bool) {
         recalculateAmountLeft2Pay();
         require(amountLeft2Pay < 10000);
-        require()
-
+        require(dueDate - block.number <= 0);
+        (bool callSuccess1, ) = payable(borrower).call{value: actualCollateral}(
+            ""
+        );
+        require(
+            callSuccess1,
+            "[MASSIVE ERROR] endLoan1 failed due to borrower collateral failure"
+        );
+        (bool callSuccess2, ) = payable(lender).call{
+            value: amountBorrowed - amountLeft2Pay
+        }("");
+        require(
+            callSuccess2,
+            "[MASSIVE ERROR] endLoan1 failed due to lender payback failure"
+        );
+        selfdestruct(payable(lender));
+        return true;
     }
 
     //--------viewfunctions------------
