@@ -121,7 +121,7 @@ contract UCLoan {
         uint256 _requiredCollateral,
         uint256 _dueDate
     ) payable {
-        require(msg.value > _amountBorrowed);
+        require(msg.value >= _amountBorrowed);
         dueDate = _dueDate;
         lender = _lender;
         borrower = _borrower;
@@ -366,5 +366,27 @@ contract UCLoan {
             return amountLeft2Pay;
         }
         return 0;
+    }
+
+    /**
+    getter for the borrower
+     */
+    function viewBorrower() external view returns (address) {
+        return borrower;
+    }
+
+    /**
+    getter for the lender
+    cs1114 taught me well <prayer emoji>
+     */
+    function viewLender() external view returns (address) {
+        return lender;
+    }
+
+    /**
+    getter for the guarantor
+     */
+    function viewGuarantor() external view returns (address) {
+        return guarantor;
     }
 }
