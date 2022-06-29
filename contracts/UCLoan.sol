@@ -64,9 +64,9 @@ contract UCLoan {
     Counterparties in the loan
      */
     //Guarantor
-    address guarantor;
+    address immutable guarantor;
     //Borrower
-    address borrower;
+    address immutable borrower;
     //Lender
     address lender;
     //mapping of addys to amount sent
@@ -76,13 +76,13 @@ contract UCLoan {
      */
 
     //storage
-    uint256 public amountBorrowed;
+    uint256 public immutable amountBorrowed;
     //storage Immutable Total Amount to Be Repaid
     uint256 public immutable amountToBeRepaid;
     //storage Amount remaining to be repaid
     uint256 public amountLeft2Pay;
     //requiredCollateralAmount to start
-    uint256 public requiredCollateralAmount;
+    uint256 public immutable requiredCollateralAmount;
     //actual collateral
     uint256 public actualCollateral;
     //loanActive
@@ -252,7 +252,7 @@ contract UCLoan {
             require(
                 _amount <=
                     amountFundedByAddress[borrower] +
-                        amountFundedByAddress[guarantor] -
+                        amountFundedByAddress[guarantor] +
                         actualCollateral
             );
             (bool callSuccess, ) = payable(lender).call{value: _amount}("");
@@ -273,7 +273,7 @@ contract UCLoan {
     gives back the collaterall to the borrower
     gives the lender everything else
      */
-    function endLoan1() external onlyLender isActiveLoan returns (bool) {
+    function endLoan1() external onlyLender isActiveLoan returns (uint256) {
         recalculateAmountLeft2Pay();
         require(amountLeft2Pay < 10000);
         require(dueDate - block.number <= 0);
@@ -292,13 +292,44 @@ contract UCLoan {
             "[MASSIVE ERROR] endLoan1 failed due to lender payback failure"
         );
         selfdestruct(payable(lender));
-        return true;
+        return 0;
+    }
+
+    /**
+    function that keeps the loan alive but only so that borrower can repay(scenario 2)
+    returns the amount of bad debt in the system
+     */
+    function endLoan2() external onlyLender isActiveLoan returns (uint256) {
+        recalculateAmountLeft2Pay();
+        require(dueDate - block.number <= 0);
+        require(amountLeft2Pay > 10000);
+        isLoanActive = false;
+
+        return amountLeft2Pay;
+    }
+
+    /**
+    function that freezes the state of the loan so that everything is visible
+    for future arbitration, or any offchain method of dealing with the loan.
+     */
+    function endLoan3() external onlyLender isActiveLoan returns (uint256) {
+        recalculateAmountLeft2Pay();
+        require(dueDate - block.number <= 0);
+        require(amountLeft2Pay > 10000);
+        (bool callSuccess, ) = payable(lender).call{
+            value: amountBorrowed - amountLeft2Pay + actualCollateral
+        }("");
+        require(callSuccess, "[MASSIVE ERROR IN ENDLOAN3]");
+        isLoanActive = false;
+        return amountLeft2Pay;
     }
 
     //--------viewfunctions------------
 
     /**
-    
+    where tf is the code review guy
+
+    oh wait its me
      */
     function viewDebt() external view returns (uint256, uint8) {}
 
@@ -307,5 +338,33 @@ contract UCLoan {
             int256(dueDate - block.number),
             int256(dueDate - block.number) < 0
         );
+    }
+
+    /**
+    
+     */
+    function viewAmountFundedByAddress()
+        external
+        view
+        returns (uint256, uint256)
+    {
+        return (amountFundedByAddress[lender], amountFundedByAddress[borrower]);
+    }
+
+    /**
+    
+     */
+    function viewCollateral() external view returns (uint256) {
+        return actualCollateral;
+    }
+
+    /**
+    
+     */
+    function viewBadDebt() external view returns (uint256) {
+        if (dueDate - block.number <= 0) {
+            return amountLeft2Pay;
+        }
+        return 0;
     }
 }
