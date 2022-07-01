@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 //I tried to make this as much as similar to a loan as possible, but it is slowly looking like less of a loan and more of some kind of
@@ -36,5 +37,26 @@ contract UCLoanFactory {
         borrower2Loan[ucLoan.viewBorrower()] = ucLoan;
         guarantor2Loan[ucLoan.viewGuarantor()] = ucLoan;
         return address(ucLoan);
+    }
+
+    //getLoan
+
+    //viewfunctions
+
+    //view the amount left to pay for a certain address
+    //if the function returns 404 it means that there are no loans found with associated account
+    function viewAddressOfUCLoan(address _address)
+        external
+        view
+        returns (address)
+    {
+        if (lender2Loan[_address].viewLender() != address(0x0)) {
+            return address(lender2Loan[_address]);
+        } else if (borrower2Loan[_address].viewLender() != address(0x0)) {
+            return address(borrower2Loan[_address]);
+        } else if (guarantor2Loan[_address].viewLender() != address(0x0)) {
+            return address(guarantor2Loan[_address]);
+        }
+        return address(0x0);
     }
 }

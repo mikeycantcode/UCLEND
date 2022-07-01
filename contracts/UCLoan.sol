@@ -89,7 +89,8 @@ contract UCLoan {
     bool public isLoanActive;
     //due date
     uint256 public dueDate;
-    //date at which loan was started
+    //boolean but is it cheaper??? (keepalive)
+    bytes1 public kA;
     //dont need this because i could just use block.number instead (update would be hella less gas efficient)
 
     modifier onlyGuarantor() {
@@ -106,7 +107,7 @@ contract UCLoan {
         require(msg.sender == lender, "is not lender");
         _;
     }
-
+    //sus
     modifier isActiveLoan() {
         require(isLoanActive, "");
         _;
@@ -208,6 +209,7 @@ contract UCLoan {
     What the borrower sends if the deny the loan
      */
     function denyLoan() external onlyBorrower {
+        require(kA != 0x01);
         require(!isLoanActive, "Loan already started");
         emergencyWithdraw();
     }
@@ -235,6 +237,16 @@ contract UCLoan {
     Allows the borrower to pay back the loan
      */
     function borrowerPayOffLoan() external payable onlyBorrower isActiveLoan {
+        require(msg.value >= 0);
+        amountFundedByAddress[borrower] += msg.value;
+        recalculateAmountLeft2Pay();
+    }
+
+    /**
+    Allows the borrower to pay back the loan
+     */
+    function kAborrowerPayOffLoan() external payable onlyBorrower {
+        require(kA == 0x01);
         require(msg.value >= 0);
         amountFundedByAddress[borrower] += msg.value;
         recalculateAmountLeft2Pay();
@@ -304,7 +316,7 @@ contract UCLoan {
         require(dueDate - block.number <= 0);
         require(amountLeft2Pay > 10000);
         isLoanActive = false;
-
+        kA = 0x01;
         return amountLeft2Pay;
     }
 
@@ -331,7 +343,9 @@ contract UCLoan {
 
     oh wait its me
      */
-    function viewDebt() external view returns (uint256, uint8) {}
+    function viewDebt() external view returns (uint256) {
+        return amountLeft2Pay;
+    }
 
     function viewTime() external view returns (int256, bool) {
         return (
