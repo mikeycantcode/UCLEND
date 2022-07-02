@@ -30,7 +30,6 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    localhost
   },
   gasReporter: {
     enabled: true
