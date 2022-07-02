@@ -6,10 +6,10 @@ If you trust your counterparty and guarantor, this loan tool can make everything
 
 This is meant for loans where you know who your counterparty is and have legal agreements dealing with what would happen in the case of bad debt available
 
-Anyways the workflow is kind of unintelligble right now but it will begin to make sense after I flesh out the idea a little more!
+Website / frontend coming soon!
 
-Happy lending!
+-------
 
-Oh and if i left any private keys in there plz dont rob me 0w0
+
 
 
