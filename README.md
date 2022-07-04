@@ -9,7 +9,3 @@ This is meant for loans where you know who your counterparty is and have legal a
 Website / frontend coming soon!
 
 -------
-
-
-
-

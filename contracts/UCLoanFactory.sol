@@ -18,7 +18,7 @@ contract UCLoanFactory {
     function newLoan(
         address _borrower,
         address _guarantor,
-        uint16 _interestRate,
+        uint16 _interestRate, 
         uint256 _amountBorrowed,
         uint256 _requiredCollateral,
         uint256 _dueDate

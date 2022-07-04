@@ -1,6 +1,7 @@
 const { inputToConfig } = require("@ethereum-waffle/compiler");
 const { getContractFactory } = require("@nomiclabs/hardhat-ethers/types");
 const { expect, assert } = require("chai");
+const { Contract } = require("ethers");
 const { ethers, getNamedAccounts } = require("hardhat");
 
 /**
@@ -87,6 +88,10 @@ describe("UCLoanFactory fuck i decided to test everything", async function () {
             assert.equal(ucLoan.lender = undefined)
         })
 
-        it("can accept ")
+        it("can accept the newloan once created from the ucloanfactory", async function () {
+            let address = await ucLoanFactory.viewAddressOfLender2Loan(lender)
+            ucLoan = await ethers.getContractAt("UCLoan", address)
+            ucLoan.connect.
+        })
     })
 })
