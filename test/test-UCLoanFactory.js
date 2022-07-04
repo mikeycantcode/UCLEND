@@ -8,7 +8,7 @@ const { ethers, getNamedAccounts } = require("hardhat");
  * tests if functions are working as intended, and that
  * no wierd errors are ocurring
  */
-describe("UCLoanFactory", async function () {
+describe("UCLoanFactory fuck i decided to test everything", async function () {
     /**
      * 
      */
@@ -58,20 +58,35 @@ describe("UCLoanFactory", async function () {
             assert.notEqual(txResponse, "0x0000000000000000000000000000000000000000")
             console.log("first assertion works")
             newUcLoan = await ethers.getContractAt("UCLoan", txResponse)
-            console.log("tits")
+            console.log("---")
         })
 
         it("adds to the lender mapping", async function () {
-            ucLoanFactory.view
+            let address = await ucLoanFactory.viewAddressOfLender2Loan(lender)
+            console.log(address)
 
         })
 
         it("adds to the borrower mapping", async function () {
-
+            let address = await ucLoanFactory.viewAddressOfBorrower2Loan(borrower)
+            console.log(address)
         })
 
         it("adds to the guarantor mapping", async function () {
-
+            let address = await ucLoanFactory.viewAddressOfGuarantor2Loan(guarantor)
+            console.log(address)
         })
+
+        it("is the newloan functional?", async function () {
+            let address = await ucLoanFactory.viewAddressOfLender2Loan(lender)
+            console.log(address)
+            ucLoan = await ethers.getContractAt("UCLoan", address)
+            console.log(ucLoan)
+            assert.equal(await ucLoan.viewLender(), lender)
+            await ucLoan.cancelLoan()
+            assert.equal(ucLoan.lender = undefined)
+        })
+
+        it("can accept ")
     })
 })

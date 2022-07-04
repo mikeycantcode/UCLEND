@@ -34,8 +34,8 @@ contract UCLoanFactory {
         );
         ucloans.push(ucLoan);
         lender2Loan[msg.sender] = ucLoan;
-        borrower2Loan[ucLoan.viewBorrower()] = ucLoan;
-        guarantor2Loan[ucLoan.viewGuarantor()] = ucLoan;
+        borrower2Loan[_borrower] = ucLoan;
+        guarantor2Loan[_guarantor] = ucLoan;
         return address(ucLoan);
     }
 
@@ -45,18 +45,53 @@ contract UCLoanFactory {
 
     //view the amount left to pay for a certain address
     //if the function returns 404 it means that there are no loans found with associated account
-    function viewAddressOfUCLoan(address _address)
+    function viewAddressOfLender2Loan(address _address)
         external
         view
         returns (address)
     {
         if (lender2Loan[_address].viewLender() != address(0x0)) {
             return address(lender2Loan[_address]);
-        } else if (borrower2Loan[_address].viewLender() != address(0x0)) {
+        } else {
+            return address(0x0);
+        }
+    }
+
+    //borrower2loaln
+    function viewAddressOfBorrower2Loan(address _address)
+        external
+        view
+        returns (address)
+    {
+        if (borrower2Loan[_address].viewLender() != address(0x0)) {
+            return address(borrower2Loan[_address]);
+        } else {
+            return address(0x0);
+        }
+    }
+
+    //guraantor
+    function viewAddressOfGuarantor2Loan(address _address)
+        external
+        view
+        returns (address)
+    {
+        if (guarantor2Loan[_address].viewLender() != address(0x0)) {
+            return address(guarantor2Loan[_address]);
+        } else {
+            return address(0x0);
+        }
+    }
+
+    /*
+
+
+            } else if (borrower2Loan[_address].viewLender() != address(0x0)) {
             return address(borrower2Loan[_address]);
         } else if (guarantor2Loan[_address].viewLender() != address(0x0)) {
             return address(guarantor2Loan[_address]);
         }
         return address(0x0);
-    }
+
+        */
 }

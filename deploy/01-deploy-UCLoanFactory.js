@@ -15,11 +15,10 @@ module.exports = async (hre) => {
 
     const fundMe = await deploy("UCLoanFactory", {
         from: deployer,
-        args: [], //put price feed address
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1
     })
 
     log("------deploy-01-ended---------")
 }
-module.exports.tags = ["all", "funding"]
+module.exports.tags = ["all", "factory"]
