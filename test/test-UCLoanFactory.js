@@ -91,7 +91,7 @@ describe("UCLoanFactory fuck i decided to test everything", async function () {
         it("can accept the newloan once created from the ucloanfactory", async function () {
             let address = await ucLoanFactory.viewAddressOfLender2Loan(lender)
             ucLoan = await ethers.getContractAt("UCLoan", address)
-            ucLoan.connect.
+            //ucLoan.connect.
         })
     })
 })

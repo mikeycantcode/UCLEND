@@ -18,7 +18,7 @@ contract UCLoanFactory {
     function newLoan(
         address _borrower,
         address _guarantor,
-        uint16 _interestRate, 
+        uint16 _interestRate,
         uint256 _amountBorrowed,
         uint256 _requiredCollateral,
         uint256 _dueDate
@@ -50,11 +50,7 @@ contract UCLoanFactory {
         view
         returns (address)
     {
-        if (lender2Loan[_address].viewLender() != address(0x0)) {
-            return address(lender2Loan[_address]);
-        } else {
-            return address(0x0);
-        }
+        return address(lender2Loan[_address]);
     }
 
     //borrower2loaln
@@ -63,11 +59,7 @@ contract UCLoanFactory {
         view
         returns (address)
     {
-        if (borrower2Loan[_address].viewLender() != address(0x0)) {
-            return address(borrower2Loan[_address]);
-        } else {
-            return address(0x0);
-        }
+        return address(borrower2Loan[_address]);
     }
 
     //guraantor
@@ -76,11 +68,7 @@ contract UCLoanFactory {
         view
         returns (address)
     {
-        if (guarantor2Loan[_address].viewLender() != address(0x0)) {
-            return address(guarantor2Loan[_address]);
-        } else {
-            return address(0x0);
-        }
+        return address(guarantor2Loan[_address]);
     }
 
     /*
