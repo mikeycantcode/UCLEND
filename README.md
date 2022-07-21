@@ -21,7 +21,9 @@ To deploy run `yarn hardhat deploy --network`
 
 -------
 
-This platform works by the lender creating a loan using the `newLoan()` function of the ucLoanFactory contract. This creates an individual ucLoan contract, which has functions to manipulate the loan such as `acceptLoanAndPayCollateral()`, `borrowerPayOffLoan()`, and `marginCall()`. Once the loan is over and paid off, the individual ucLoan is selfdestructed and gas returned to the lender.
+This platform works by the lender creating a loan using the `newLoan()` function of the ucLoanFactory contract. 
+This creates an individual ucLoan contract, which has functions to manipulate the loan such as `acceptLoanAndPayCollateral()`, `borrowerPayOffLoan()`, and `marginCall()`. 
+Once the loan is over and paid off, the individual ucLoan is selfdestructed and gas returned to the lender.
 
 The files should be well documented if you have any questions.
 
