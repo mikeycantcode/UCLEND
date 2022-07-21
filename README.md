@@ -1,6 +1,6 @@
 # UCLEND - a P2P Loan Platform on the [EVM] blockchain
 
-A cool loan project I thought of when I was learning about the way loans are handled in traditional finance
+A small project that uses the blockchain
 
 If you trust your counterparty and guarantor, this loan tool can make everything simplified and easy to use!
 
@@ -10,6 +10,11 @@ Website / frontend coming soon!
 
 -------
 
+To test on a local network run
 
+"""terminal
+yarn hardhat node
+yarn hardhat test
+"""
 
 
