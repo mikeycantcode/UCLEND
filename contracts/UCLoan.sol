@@ -403,4 +403,11 @@ contract UCLoan {
     function viewGuarantor() external view returns (address) {
         return guarantor;
     }
+
+    /**
+    getter for amount borrowed
+     */
+    function viewAmountBorrowed() external view returns (uint256) {
+        return amountBorrowed;
+    }
 }
