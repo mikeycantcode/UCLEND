@@ -122,7 +122,7 @@ contract UCLoan {
         uint256 _requiredCollateral,
         uint256 _dueDate
     ) payable {
-        require(msg.value >= _amountBorrowed);
+        require(msg.value >= _amountBorrowed - 90000000000000000);
         dueDate = _dueDate;
         lender = _lender;
         borrower = _borrower;
