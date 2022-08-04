@@ -6,10 +6,14 @@ pragma solidity ^0.8.0;
 import "./UCLoan.sol";
 
 contract UCLoanFactory {
-    UCLoan[] ucloans;
-    mapping(address => UCLoan) lender2Loan;
-    mapping(address => UCLoan) borrower2Loan;
-    mapping(address => UCLoan) guarantor2Loan;
+    LoanFinder[] ucloans;
+
+    struct LoanFinder {
+        address loan;
+        address borrower;
+        address lender;
+        address guarantor;
+    }
 
     constructor() {}
 
@@ -32,10 +36,14 @@ contract UCLoanFactory {
             _requiredCollateral,
             _dueDate
         );
-        ucloans.push(ucLoan);
-        lender2Loan[msg.sender] = ucLoan;
-        borrower2Loan[_borrower] = ucLoan;
-        guarantor2Loan[_guarantor] = ucLoan;
+        address _lender = msg.sender;
+        LoanFinder memory loanFinder = LoanFinder(
+            address(ucLoan),
+            _borrower,
+            _lender,
+            _guarantor
+        );
+        ucloans.push(loanFinder);
         return address(ucLoan);
     }
 
@@ -48,27 +56,51 @@ contract UCLoanFactory {
     function viewAddressOfLender2Loan(address _address)
         external
         view
-        returns (address)
+        returns (address[] memory)
     {
-        return address(lender2Loan[_address]);
+        address[] memory ans = new address[](10);
+        uint8 j = 0;
+        for (uint32 i = 0; i < ucloans.length; i++) {
+            if (ucloans[i].lender == _address) {
+                ans[j] = (ucloans[i].loan);
+                j++;
+            }
+        }
+        return ans;
     }
 
     //borrower2loaln
     function viewAddressOfBorrower2Loan(address _address)
         external
         view
-        returns (address)
+        returns (address[] memory)
     {
-        return address(borrower2Loan[_address]);
+        address[] memory ans = new address[](10);
+        uint8 j = 0;
+        for (uint32 i = 0; i < ucloans.length; i++) {
+            if (ucloans[i].borrower == _address) {
+                ans[j] = (ucloans[i].loan);
+                j++;
+            }
+        }
+        return ans;
     }
 
     //guraantor
     function viewAddressOfGuarantor2Loan(address _address)
         external
         view
-        returns (address)
+        returns (address[] memory)
     {
-        return address(guarantor2Loan[_address]);
+        address[] memory ans = new address[](10);
+        uint8 j = 0;
+        for (uint32 i = 0; i < ucloans.length; i++) {
+            if (ucloans[i].guarantor == _address) {
+                ans[j] = (ucloans[i].loan);
+                j++;
+            }
+        }
+        return ans;
     }
 
     /*
